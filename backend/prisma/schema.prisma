@@ -1,0 +1,88 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enums ────────────────────────────────────────────────
+enum TransactionType {
+  income
+  expense
+  investment
+}
+
+enum Role {
+  admin
+  user
+}
+
+// ── Usuários ─────────────────────────────────────────────
+model User {
+  id           String          @id @default(uuid())
+  name         String          @db.VarChar(100)
+  email        String          @unique @db.VarChar(150)
+  password     String          // bcrypt hash
+  role         Role            @default(user)
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  transactions Transaction[]
+  categories   Category[]
+  budgets      MonthlyBudget[]
+
+  @@map("users")
+}
+
+// ── Categorias ────────────────────────────────────────────
+model Category {
+  id           String          @id @default(uuid())
+  name         String          @db.VarChar(100)
+  type         TransactionType
+  icon         String?         @db.VarChar(50)
+  userId       String          @map("user_id")
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  transactions Transaction[]
+  budgets      MonthlyBudget[]
+
+  @@index([userId])
+  @@map("categories")
+}
+
+// ── Transações ────────────────────────────────────────────
+model Transaction {
+  id          String          @id @default(uuid())
+  date        DateTime        @db.Date
+  description String          @db.VarChar(255)
+  amount      Decimal         @db.Decimal(15, 2)
+  type        TransactionType
+  userId      String          @map("user_id")
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId  String?         @map("category_id")
+  category    Category?       @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  createdAt   DateTime        @default(now()) @map("created_at")
+
+  @@index([userId])
+  @@index([date(sort: Desc)])
+  @@index([type])
+  @@map("transactions")
+}
+
+// ── Orçamentos Mensais ────────────────────────────────────
+model MonthlyBudget {
+  id         String   @id @default(uuid())
+  userId     String   @map("user_id")
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId String   @map("category_id")
+  category   Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  amount     Decimal  @db.Decimal(15, 2)
+  month      Int      @db.SmallInt
+  year       Int      @db.SmallInt
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, categoryId, month, year])
+  @@index([userId, year, month])
+  @@map("monthly_budgets")
+}

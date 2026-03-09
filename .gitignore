@@ -27,3 +27,15 @@ temp_vite
 _temp_vite
 excel_parser_tmp
 C:/tmp/analyze_excel.py
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build outputs
+dist
+dist-ssr
+
+# Node modules
+node_modules/

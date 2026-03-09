@@ -124,6 +124,40 @@ export function Transactions({ transactions, categories, addTransaction, deleteT
           padding: 0.5rem 1rem;
           border-radius: 0.5rem;
           outline: none;
+          font-size: 0.95rem;
+        }
+
+        .glass-input:focus {
+          border-color: rgba(99, 102, 241, 0.6);
+          background: rgba(255, 255, 255, 0.08);
+        }
+
+        /* Selects com fundo escuro — corrige o dropdown branco no Windows */
+        select.glass-input {
+          appearance: none;
+          -webkit-appearance: none;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23a0aec0' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.75rem center;
+          padding-right: 2.25rem;
+          background-color: #1e293b;
+          cursor: pointer;
+        }
+
+        select.glass-input:focus {
+          background-color: #1e293b;
+        }
+
+        select.glass-input option {
+          background-color: #1e293b;
+          color: #f1f5f9;
+          padding: 0.5rem;
+        }
+
+        select.glass-input option:hover,
+        select.glass-input option:checked {
+          background-color: #6366f1;
+          color: white;
         }
         
         .btn-primary {

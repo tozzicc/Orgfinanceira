@@ -3,11 +3,13 @@ import {
     TrendingUp,
     TrendingDown,
     Wallet,
-    PieChart
+    PieChart as PieChartIcon
 } from 'lucide-react';
 import {
     BarChart,
     Bar,
+    LineChart,
+    Line,
     XAxis,
     YAxis,
     CartesianGrid,
@@ -15,8 +17,10 @@ import {
     ResponsiveContainer,
     Cell,
     PieChart as RePieChart,
-    Pie
+    Pie,
+    Legend
 } from 'recharts';
+import { usePreferences } from '../contexts/PreferencesContext';
 
 interface DashboardProps {
     totals: {
@@ -28,14 +32,21 @@ interface DashboardProps {
 }
 
 export function Dashboard({ totals, balance }: DashboardProps) {
+    const { chartStyle, colors } = usePreferences();
+
     const chartData = [
-        { name: 'Receitas', value: totals.income, color: '#10b981' },
-        { name: 'Despesas', value: totals.expense, color: '#ef4444' },
-        { name: 'Investimento', value: totals.investment, color: '#3b82f6' },
+        { name: 'Receitas', value: totals.income, color: colors.income },
+        { name: 'Despesas', value: totals.expense, color: colors.expense },
+        { name: 'Investimentos', value: totals.investment, color: colors.investment },
     ];
 
     const formatCurrency = (val: number) =>
         new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
+
+    const tooltipStyle = {
+        contentStyle: { background: '#1e293b', border: 'none', borderRadius: '8px' },
+        itemStyle: { color: '#fff' },
+    };
 
     return (
         <div className="dashboard-content">
@@ -59,7 +70,7 @@ export function Dashboard({ totals, balance }: DashboardProps) {
                 <StatCard
                     title="Investimentos"
                     value={formatCurrency(totals.investment)}
-                    icon={<PieChart className="icon-purple" />}
+                    icon={<PieChartIcon className="icon-purple" />}
                 />
             </div>
 
@@ -67,20 +78,77 @@ export function Dashboard({ totals, balance }: DashboardProps) {
                 <div className="glass-card chart-container">
                     <h3>Resumo Financeiro</h3>
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={chartData}>
-                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
-                            <XAxis dataKey="name" stroke="var(--text-secondary)" />
-                            <YAxis stroke="var(--text-secondary)" hide />
-                            <Tooltip
-                                contentStyle={{ background: '#1e293b', border: 'none', borderRadius: '8px' }}
-                                itemStyle={{ color: '#fff' }}
-                            />
-                            <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                                {chartData.map((entry, index) => (
-                                    <Cell key={`cell-${index}`} fill={entry.color} />
-                                ))}
-                            </Bar>
-                        </BarChart>
+                        {/* ── Barras ── */}
+                        {chartStyle === 'bar' ? (
+                            <BarChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                                <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                                <YAxis stroke="var(--text-secondary)" hide />
+                                <Tooltip {...tooltipStyle} formatter={(v: any) => formatCurrency(v)} />
+                                <Bar dataKey="value" radius={[6, 6, 0, 0]}>
+                                    {chartData.map((entry, i) => (
+                                        <Cell key={i} fill={entry.color} />
+                                    ))}
+                                </Bar>
+                            </BarChart>
+                        ) : chartStyle === 'pie' ? (
+                            /* ── Pizza ── */
+                            <RePieChart>
+                                <Pie
+                                    data={chartData}
+                                    dataKey="value"
+                                    nameKey="name"
+                                    cx="50%"
+                                    cy="50%"
+                                    outerRadius={110}
+                                    innerRadius={55}
+                                    paddingAngle={3}
+                                    label={({ name, percent }) =>
+                                        `${name} ${(percent * 100).toFixed(0)}%`
+                                    }
+                                    labelLine={false}
+                                >
+                                    {chartData.map((entry, i) => (
+                                        <Cell key={i} fill={entry.color} />
+                                    ))}
+                                </Pie>
+                                <Tooltip {...tooltipStyle} formatter={(v: any) => formatCurrency(v)} />
+                                <Legend />
+                            </RePieChart>
+                        ) : (
+                            /* ── Linhas ── */
+                            <LineChart data={chartData}>
+                                <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.1)" vertical={false} />
+                                <XAxis dataKey="name" stroke="var(--text-secondary)" />
+                                <YAxis stroke="var(--text-secondary)" hide />
+                                <Tooltip {...tooltipStyle} formatter={(v: any) => formatCurrency(v)} />
+                                <Line
+                                    type="monotone"
+                                    dataKey="value"
+                                    stroke="url(#lineGradient)"
+                                    strokeWidth={3}
+                                    dot={(props: any) => {
+                                        const { cx, cy, index } = props;
+                                        return (
+                                            <circle
+                                                key={index}
+                                                cx={cx} cy={cy} r={6}
+                                                fill={chartData[index]?.color || '#6366f1'}
+                                                stroke="#fff"
+                                                strokeWidth={2}
+                                            />
+                                        );
+                                    }}
+                                />
+                                <defs>
+                                    <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
+                                        <stop offset="0%" stopColor={colors.income} />
+                                        <stop offset="50%" stopColor={colors.expense} />
+                                        <stop offset="100%" stopColor={colors.investment} />
+                                    </linearGradient>
+                                </defs>
+                            </LineChart>
+                        )}
                     </ResponsiveContainer>
                 </div>
             </div>
