@@ -12,14 +12,19 @@ const app = express();
 const PORT = process.env.PORT || 3001;
 
 // ── Middlewares ────────────────────────────────────────────────
-app.use(cors({
-    origin: [
+const allowedOrigins = process.env.ALLOWED_ORIGINS
+    ? process.env.ALLOWED_ORIGINS.split(',')
+    : [
         'http://localhost:5173',
         'http://localhost:5174',
+        'http://localhost:5175',
         'http://localhost:3000',
         'http://127.0.0.1:5173',
         'http://127.0.0.1:5174',
-    ],
+    ];
+
+app.use(cors({
+    origin: allowedOrigins,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));

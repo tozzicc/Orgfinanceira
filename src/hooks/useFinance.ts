@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 import { useDate } from '../contexts/DateContext';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+import { API_URL } from '../config';
 
 interface FinanceData {
     transactions: Transaction[];
