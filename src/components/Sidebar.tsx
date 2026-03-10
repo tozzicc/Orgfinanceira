@@ -1,4 +1,4 @@
-import React from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import {
   LayoutDashboard,
   ArrowUpCircle,
@@ -8,7 +8,8 @@ import {
   Wallet,
   Sun,
   Moon,
-  DollarSign
+  LogOut,
+  User
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -29,6 +30,8 @@ const MENU_ITEMS = [
 ];
 
 export function Sidebar({ activeTab, setActiveTab, theme, toggleTheme }: SidebarProps) {
+  const { user, logout } = useAuth();
+
   return (
     <aside className="sidebar glass-card">
       <div className="sidebar-header">
@@ -37,6 +40,7 @@ export function Sidebar({ activeTab, setActiveTab, theme, toggleTheme }: Sidebar
           {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
         </button>
       </div>
+
       <nav className="nav-menu">
         {MENU_ITEMS.map((item) => (
           <button
@@ -52,6 +56,23 @@ export function Sidebar({ activeTab, setActiveTab, theme, toggleTheme }: Sidebar
           </button>
         ))}
       </nav>
+
+      <div className="sidebar-footer">
+        <div className="user-profile">
+          <div className="user-avatar">
+            <User size={18} />
+          </div>
+          <div className="user-info">
+            <span className="user-name">{user?.name || 'Usuário'}</span>
+            <span className="user-role">{user?.role === 'admin' ? 'Administrador' : 'Conta Pessoal'}</span>
+          </div>
+        </div>
+
+        <button className="logout-button" onClick={logout} title="Sair da conta">
+          <LogOut size={18} />
+          <span>Sair</span>
+        </button>
+      </div>
 
       <style>{`
         .sidebar {
@@ -138,6 +159,73 @@ export function Sidebar({ activeTab, setActiveTab, theme, toggleTheme }: Sidebar
           background: var(--primary-gradient);
           color: white;
           box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+        }
+
+        .sidebar-footer {
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 1rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid var(--border-glass);
+        }
+
+        .user-profile {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.5rem;
+        }
+
+        .user-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
+          background: rgba(99, 102, 241, 0.1);
+          color: #6366f1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .user-info {
+          display: flex;
+          flex-direction: column;
+          overflow: hidden;
+        }
+
+        .user-name {
+          font-size: 0.9rem;
+          font-weight: 600;
+          color: var(--text-primary);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .user-role {
+          font-size: 0.75rem;
+          color: var(--text-secondary);
+        }
+
+        .logout-button {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.75rem 1rem;
+          border-radius: 0.5rem;
+          border: 1px solid rgba(239, 68, 68, 0.2);
+          background: rgba(239, 68, 68, 0.05);
+          color: #f87171;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-size: 0.95rem;
+          font-weight: 500;
+        }
+
+        .logout-button:hover {
+          background: rgba(239, 68, 68, 0.15);
+          transform: translateY(-1px);
         }
       `}</style>
     </aside>

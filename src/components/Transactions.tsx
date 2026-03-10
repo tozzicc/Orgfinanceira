@@ -3,6 +3,7 @@ import { Plus, Trash2, Filter } from 'lucide-react';
 import { Transaction, Category, TransactionType } from '../types';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { useDate } from '../contexts/DateContext';
 
 interface TransactionsProps {
     transactions: Transaction[];
@@ -238,12 +239,22 @@ interface TransactionModalProps {
 }
 
 function TransactionModal({ categories, onClose, onSubmit }: TransactionModalProps) {
-    const [formData, setFormData] = useState({
-        date: new Date().toISOString().split('T')[0],
-        description: '',
-        amount: '',
-        categoryId: categories[0]?.id || '',
-        type: 'expense' as TransactionType
+    const { selectedMonth, selectedYear } = useDate();
+
+    const [formData, setFormData] = useState(() => {
+        // Criar uma data que caia no mês/ano selecionado
+        const initialDate = new Date(selectedYear, selectedMonth, new Date().getDate());
+        // Ajustar para o último dia do mês se o dia atual for maior (ex: 31 de Março -> Fev)
+        const day = Math.min(new Date().getDate(), new Date(selectedYear, selectedMonth + 1, 0).getDate());
+        const dateStr = `${selectedYear}-${String(selectedMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+        return {
+            date: dateStr,
+            description: '',
+            amount: '',
+            categoryId: categories[0]?.id || '',
+            type: 'expense' as TransactionType
+        };
     });
 
     return (

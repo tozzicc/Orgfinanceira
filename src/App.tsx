@@ -10,8 +10,11 @@ import { Settings } from './components/Settings';
 import { LoginPage } from './pages/LoginPage';
 import { AdminPage } from './pages/AdminPage';
 
+import { DateProvider, useDate } from './contexts/DateContext';
+import { DateSelector } from './components/DateSelector';
+
 // ── App financeiro (role=user) ─────────────────────────────────
-function FinanceApp() {
+function FinanceAppContent() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [theme, setTheme] = useState<'dark' | 'light'>(() =>
     (localStorage.getItem('theme') as 'dark' | 'light') || 'dark'
@@ -37,6 +40,9 @@ function FinanceApp() {
               <button onClick={finance.refetch}>Tentar novamente</button>
             </div>
           )}
+
+          {/* Seletor de Data visível apenas no Dashboard e Transações */}
+          {['dashboard', 'transactions'].includes(activeTab) && <DateSelector />}
 
           {finance.loading && (
             <div className="loading-overlay">
@@ -88,6 +94,15 @@ function FinanceApp() {
         `}</style>
       </div>
     </PreferencesProvider>
+  );
+}
+
+// ── App financeiro (role=user) ───────────────────────────────
+function FinanceApp() {
+  return (
+    <DateProvider>
+      <FinanceAppContent />
+    </DateProvider>
   );
 }
 

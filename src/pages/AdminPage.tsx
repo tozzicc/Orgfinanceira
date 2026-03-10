@@ -120,25 +120,27 @@ export function AdminPage() {
                                                 : <span className="status-badge inactive"><XCircle size={13} /> Inativo</span>
                                             }
                                         </td>
-                                        <td className="td-actions">
-                                            {u.role !== 'admin' && (
-                                                <>
-                                                    <button
-                                                        className={`btn-toggle ${u.active ? 'on' : 'off'}`}
-                                                        onClick={() => handleToggle(u.id)}
-                                                        title={u.active ? 'Desativar' : 'Ativar'}
-                                                    >
-                                                        {u.active ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
-                                                    </button>
-                                                    <button
-                                                        className="btn-del"
-                                                        onClick={() => handleDelete(u.id, u.name)}
-                                                        title="Excluir"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </>
-                                            )}
+                                        <td>
+                                            <div className="td-actions">
+                                                {u.role !== 'admin' && (
+                                                    <>
+                                                        <button
+                                                            className={`btn-toggle ${u.active ? 'on' : 'off'}`}
+                                                            onClick={() => handleToggle(u.id)}
+                                                            title={u.active ? 'Desativar' : 'Ativar'}
+                                                        >
+                                                            {u.active ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
+                                                        </button>
+                                                        <button
+                                                            className="btn-del"
+                                                            onClick={() => handleDelete(u.id, u.name)}
+                                                            title="Excluir"
+                                                        >
+                                                            <Trash2 size={16} />
+                                                        </button>
+                                                    </>
+                                                )}
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -261,7 +263,7 @@ export function AdminPage() {
         .td-name { font-weight: 600; color: var(--text-primary, #f1f5f9); }
         .td-email { color: var(--text-secondary, #94a3b8); font-size: 0.875rem; }
         .td-center { text-align: center; }
-        .td-actions { display: flex; align-items: center; gap: 0.5rem; }
+        .td-actions { display: flex; align-items: center; gap: 0.5rem; justify-content: flex-start; }
 
         .role-badge {
           padding: 0.2rem 0.6rem; border-radius: 6px; font-size: 0.78rem; font-weight: 600;

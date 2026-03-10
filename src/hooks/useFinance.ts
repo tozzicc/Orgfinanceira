@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Transaction, Category, TransactionType } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
+import { useDate } from '../contexts/DateContext';
+
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
 interface FinanceData {
@@ -11,6 +13,7 @@ interface FinanceData {
 
 export function useFinance() {
     const { authFetch } = useAuth();
+    const { selectedMonth, selectedYear } = useDate();
 
     const [data, setData] = useState<FinanceData>({ transactions: [], categories: [] });
     const [loading, setLoading] = useState(true);
@@ -30,17 +33,24 @@ export function useFinance() {
             if (!txRes.ok) throw new Error('Falha ao buscar transações');
             if (!catRes.ok) throw new Error('Falha ao buscar categorias');
 
-            const transactions: Transaction[] = await txRes.json();
+            const allTransactions: Transaction[] = await txRes.json();
             const categories: Category[] = await catRes.json();
 
-            setData({ transactions, categories });
+            // Filtrar transações pelo período selecionado
+            const filteredTransactions = allTransactions.filter(t => {
+                const d = new Date(t.date);
+                // getMonth() é 0-indexed, dateContext também é 0-indexed
+                return d.getUTCMonth() === selectedMonth && d.getUTCFullYear() === selectedYear;
+            });
+
+            setData({ transactions: filteredTransactions, categories });
         } catch (err: any) {
             console.error('Erro ao carregar dados:', err);
             setError(err.message || 'Erro ao conectar com o servidor');
         } finally {
             setLoading(false);
         }
-    }, [authFetch]);
+    }, [authFetch, selectedMonth, selectedYear]);
 
     useEffect(() => { fetchData(); }, [fetchData]);
 
